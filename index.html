@@ -161,19 +161,19 @@
       cursor: grabbing;
     }
 
-    /* Subtle Bottom Telemetry Hint */
+    /* Bottom Conic Section & Telemetry Pill */
     .telemetry-hint {
       position: absolute;
       bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(7, 10, 18, 0.8);
+      background: rgba(7, 10, 18, 0.84);
       -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
-      border: 1px solid rgba(0, 240, 255, 0.22);
-      padding: 5px 13px;
+      border: 1px solid rgba(0, 240, 255, 0.24);
+      padding: 5px 14px;
       border-radius: 99px;
-      font-size: 0.71rem;
+      font-size: 0.72rem;
       font-family: var(--font-mono);
       color: #b9c8e8;
       pointer-events: none;
@@ -472,10 +472,10 @@
 
         <!-- 3 Core Lab Toggles -->
         <div class="control-section">
-          <div class="section-label">Lab Rules</div>
+          <div class="section-label">Flight Computer &amp; Trails</div>
           <label class="toggle-row">
-            <span>🕸️ Spacetime Gravity Well</span>
-            <div class="switch"><input type="checkbox" id="toggleGrid" checked /><span class="slider-toggle"></span></div>
+            <span>🔭 Deep Future Predictor</span>
+            <div class="switch"><input type="checkbox" id="toggleDeepPredict" checked /><span class="slider-toggle"></span></div>
           </label>
           <label class="toggle-row">
             <span>⏱️ Slow-Mo While Aiming</span>
@@ -601,13 +601,18 @@
       unlockLab();
     });
 
-    /* 2. VOLUMETRIC RENDERING & TRUE N-BODY ASTROPHYSICS ENGINE */
+    /* 2. VOLUMETRIC RENDERING & DETERMINISTIC N-BODY ENGINE */
     const canvas = document.getElementById('simCanvas');
     const ctx = canvas.getContext('2d');
     let W = 800, H = 600, shake = 0;
 
+    // Shared deterministic substep size for both live physics & future predictor
+    const H_STEP = 0.21;
+    const STAR_SOFT = 45;
+    const PLANET_SOFT = 12;
+
     const labConfig = {
-      showGrid: true,
+      deepPredict: true,
       slowMoAim: true,
       longTrails: false,
       launchClass: 'planet', // 'moon' | 'planet' | 'giant'
@@ -616,9 +621,9 @@
     };
 
     const massClasses = {
-      moon:   { r: 4.5,  mass: 1.5,   hasRing: false, label: 'MOON' },
-      planet: { r: 8.5,  mass: 22.0,  hasRing: false, label: 'PLANET' },
-      giant:  { r: 14.0, mass: 175.0, hasRing: true,  label: 'GAS GIANT' }
+      moon:   { r: 4.2,  mass: 1.2,   hasRing: false, label: 'MOON' },
+      planet: { r: 8.2,  mass: 22.0,  hasRing: false, label: 'PLANET' },
+      giant:  { r: 13.5, mass: 220.0, hasRing: true,  label: 'GAS GIANT' }
     };
 
     const planetPalettes = [
@@ -634,7 +639,7 @@
     let planets = [];
     let ringDebris = [];
     let bgStars = [];
-    let interaction = null; // { mode: 'dragStar'|'slingExisting'|'slingNew', ... }
+    let interaction = null;
 
     function createBackgroundStars() {
       bgStars = [];
@@ -647,6 +652,11 @@
           phase: Math.random() * Math.PI * 2
         });
       }
+    }
+
+    // Exact circular speed for a softened potential: v = r * sqrt(G * M / (r^2 + soft)^1.5)
+    function softenedCircularSpeed(mass, dist, softSq) {
+      return dist * Math.sqrt((labConfig.G * mass) / Math.pow(dist * dist + softSq, 1.5));
     }
 
     function spawnBody(x, y, vx, vy, r, mass, palette, hasRing = false) {
@@ -673,39 +683,60 @@
       const cx = W / 2;
       const cy = H / 2;
       const minDim = Math.min(W, H);
+      const sizeScale = Math.max(0.76, Math.min(1.05, minDim / 520));
 
       if (labConfig.system === 'solar') {
         const starMass = 2600;
         stars.push({
           x: cx, y: cy, vx: 0, vy: 0,
-          mass: starMass, r: Math.max(20, minDim * 0.043),
+          mass: starMass, r: Math.max(18, minDim * 0.042),
           color: '#ffbe0b', core: '#ffffff', glow: '#ff6d00',
           type: 'star', relativity: 0,
-          rocheRadius: Math.max(50, minDim * 0.105)
+          rocheRadius: Math.max(46, minDim * 0.10)
         });
 
         // 1. Inner Rocky Planet
-        const r1 = minDim * 0.16;
-        const v1 = Math.sqrt((labConfig.G * starMass) / r1);
-        spawnBody(cx + r1, cy, 0, v1, 7.5, 18, planetPalettes[2], false);
+        const r1 = minDim * 0.155;
+        const v1 = softenedCircularSpeed(starMass, r1, STAR_SOFT);
+        spawnBody(cx + r1, cy, 0, v1, 7.2 * sizeScale, 16, planetPalettes[2], false);
 
-        // 2. Massive Ringed Gas Giant + Its Own Orbiting Moon!
-        const rGiant = minDim * 0.33;
-        const vGiant = Math.sqrt((labConfig.G * starMass) / rGiant);
-        const giantMass = 175;
-        const gx = cx - rGiant;
-        const gy = cy;
-        spawnBody(gx, gy, 0, -vGiant, 14.0, giantMass, planetPalettes[1], true);
+        // 2. Indefinitely Stable Gas Giant + Retrograde Hill-Sphere Moon Pair
+        const rPair = minDim * 0.34;
+        const giantMass = 220;
+        const moonMass = 1.2;
+        const pairMass = giantMass + moonMass;
+        const vPairCM = softenedCircularSpeed(starMass, rPair, STAR_SOFT);
 
-        // Place a Moon inside the Gas Giant's Hill Sphere
-        const moonDist = 25;
-        const vMoonRel = Math.sqrt((labConfig.G * giantMass) / Math.sqrt(moonDist * moonDist + 16));
-        spawnBody(gx, gy - moonDist, vMoonRel, -vGiant, 4.3, 1.2, planetPalettes[0], false);
+        // Place barycenter at (cx - rPair, cy) moving counter-clockwise (vy = -vPairCM)
+        const cmX = cx - rPair;
+        const cmY = cy;
+        const giantR = 13.0 * sizeScale;
+        const moonR = 4.0 * sizeScale;
+
+        // Safe retrograde Hill-sphere separation (well outside surface collision, well inside 0.38 * r_Hill)
+        const moonSep = Math.max(giantR + moonR + 8.5, rPair * 0.088);
+        const vRel = softenedCircularSpeed(pairMass, moonSep, PLANET_SOFT);
+
+        // Barycentric position & velocity split so zero net drift occurs
+        const giantFrac = moonMass / pairMass;
+        const moonFrac = giantMass / pairMass;
+
+        // Giant orbits slightly offset around barycenter; Moon orbits retrograde (clockwise) for long-term tidal stability
+        spawnBody(
+          cmX, cmY + moonSep * giantFrac,
+          vRel * giantFrac, -vPairCM,
+          giantR, giantMass, planetPalettes[1], true
+        );
+        spawnBody(
+          cmX, cmY - moonSep * moonFrac,
+          -vRel * moonFrac, -vPairCM,
+          moonR, moonMass, planetPalettes[0], false
+        );
 
         // 3. Outer Ice World
-        const r3 = minDim * 0.44;
-        const v3 = Math.sqrt((labConfig.G * starMass) / r3);
-        spawnBody(cx, cy - r3, v3, 0, 8.8, 25, planetPalettes[5], false);
+        const r3 = minDim * 0.45;
+        const v3 = softenedCircularSpeed(starMass, r3, STAR_SOFT);
+        spawnBody(cx, cy - r3, v3, 0, 8.5 * sizeScale, 24, planetPalettes[5], false);
 
       } else if (labConfig.system === 'binary') {
         const sep = minDim * 0.11;
@@ -716,54 +747,51 @@
           mass: starMass, r: Math.max(15, minDim * 0.033),
           color: '#00f0ff', core: '#ffffff', glow: '#0077ff',
           type: 'star', relativity: 0,
-          rocheRadius: Math.max(38, minDim * 0.08)
+          rocheRadius: Math.max(36, minDim * 0.078)
         });
         stars.push({
           x: cx + sep, y: cy, vx: 0, vy: vOrb,
           mass: starMass, r: Math.max(14, minDim * 0.031),
           color: '#ff2a85', core: '#ffffff', glow: '#ff0055',
           type: 'star', relativity: 0,
-          rocheRadius: Math.max(36, minDim * 0.078)
+          rocheRadius: Math.max(35, minDim * 0.075)
         });
 
         [minDim * 0.27, minDim * 0.36, minDim * 0.44].forEach((orbitR, idx) => {
           const angle = idx * 2.1;
-          const speed = Math.sqrt((labConfig.G * (starMass * 2)) / orbitR);
+          const speed = softenedCircularSpeed(starMass * 2, orbitR, STAR_SOFT);
           const isGiant = idx === 1;
           spawnBody(
             cx + Math.cos(angle) * orbitR,
             cy + Math.sin(angle) * orbitR,
             -Math.sin(angle) * speed,
             Math.cos(angle) * speed,
-            isGiant ? 13.0 : 8.2,
-            isGiant ? 140 : 20,
+            (isGiant ? 12.8 : 8.0) * sizeScale,
+            isGiant ? 160 : 20,
             planetPalettes[(idx + 1) % planetPalettes.length],
             isGiant
           );
         });
 
       } else if (labConfig.system === 'blackhole') {
-        // Supermassive Black Hole with Einstein Relativistic Precession
         const bhMass = 3600;
         stars.push({
           x: cx, y: cy, vx: 0, vy: 0,
           mass: bhMass, r: Math.max(21, minDim * 0.045),
           color: '#9d4edd', core: '#000000', glow: '#00f0ff',
-          type: 'blackhole', relativity: 26, // Causes eccentric orbits to precess into rosettes!
-          rocheRadius: Math.max(66, minDim * 0.14)
+          type: 'blackhole', relativity: 26,
+          rocheRadius: Math.max(64, minDim * 0.135)
         });
 
-        // Inner Relativistic Accretion Ring
         shredIntoRing(
           cx + minDim * 0.115, cy,
-          0, Math.sqrt((labConfig.G * bhMass) / (minDim * 0.115)),
+          0, softenedCircularSpeed(bhMass, minDim * 0.115, STAR_SOFT),
           planetPalettes[0], 65
         );
 
-        // 3 Rosette-Precessing Worlds on Eccentric Orbits (120° apart)
         const apoapsis = minDim * 0.39;
-        const vCirc = Math.sqrt((labConfig.G * bhMass) / apoapsis);
-        const vEccentric = vCirc * 0.72; // Dives close to the photon ring and precesses!
+        const vCirc = softenedCircularSpeed(bhMass, apoapsis, STAR_SOFT);
+        const vEccentric = vCirc * 0.72;
 
         for (let i = 0; i < 3; i++) {
           const a = (i * Math.PI * 2) / 3 - Math.PI / 6;
@@ -772,7 +800,7 @@
             cy + Math.sin(a) * apoapsis,
             -Math.sin(a) * vEccentric,
             Math.cos(a) * vEccentric,
-            8.5, 22,
+            8.2 * sizeScale, 22,
             planetPalettes[i % planetPalettes.length],
             false
           );
@@ -798,62 +826,11 @@
       }
     }
 
-    /* 3. 3D-WARPED SPACETIME GRAVITY WELL GRID */
-    function drawSpacetimeGrid() {
-      if (!labConfig.showGrid) return;
-      const step = Math.max(28, Math.floor(Math.min(W, H) / 16));
-      const cols = Math.ceil(W / step) + 1;
-      const rows = Math.ceil(H / step) + 1;
-
-      function warpPoint(gx, gy) {
-        let dxTotal = 0, dyTotal = 0;
-        for (const s of stars) {
-          const dx = s.x - gx;
-          const dy = s.y - gy;
-          const distSq = dx * dx + dy * dy + 2100;
-          const dist = Math.sqrt(distSq);
-          const pull = Math.min(step * 0.88, (s.mass * 14) / distSq);
-          dxTotal += (dx / dist) * pull;
-          dyTotal += (dy / dist) * pull;
-        }
-        for (const p of planets) {
-          const dx = p.x - gx;
-          const dy = p.y - gy;
-          const distSq = dx * dx + dy * dy + 650;
-          const dist = Math.sqrt(distSq);
-          const pull = Math.min(step * 0.58, (p.mass * 5.2) / distSq);
-          dxTotal += (dx / dist) * pull;
-          dyTotal += (dy / dist) * pull;
-        }
-        return { x: gx + dxTotal, y: gy + dyTotal };
-      }
-
+    /* 3. VOLUMETRIC 3D SPHERE & STAR SHADERS */
+    function drawRocheRings() {
       ctx.save();
+      ctx.setLineDash([4, 7]);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.11)';
-
-      for (let r = 0; r < rows; r++) {
-        ctx.beginPath();
-        for (let c = 0; c < cols; c++) {
-          const pt = warpPoint(c * step, r * step);
-          if (c === 0) ctx.moveTo(pt.x, pt.y);
-          else ctx.lineTo(pt.x, pt.y);
-        }
-        ctx.stroke();
-      }
-
-      for (let c = 0; c < cols; c++) {
-        ctx.beginPath();
-        for (let r = 0; r < rows; r++) {
-          const pt = warpPoint(c * step, r * step);
-          if (r === 0) ctx.moveTo(pt.x, pt.y);
-          else ctx.lineTo(pt.x, pt.y);
-        }
-        ctx.stroke();
-      }
-
-      // Subtle Roche limit warning rings around stars
-      ctx.setLineDash([4, 6]);
       for (const s of stars) {
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.rocheRadius, 0, Math.PI * 2);
@@ -863,7 +840,6 @@
       ctx.restore();
     }
 
-    /* 4. VOLUMETRIC 3D SPHERE & STAR SHADERS */
     function drawStar(s, time) {
       ctx.save();
       const pulse = 1 + Math.sin(time * 0.003) * 0.05;
@@ -944,9 +920,9 @@
         ctx.translate(p.x, p.y);
         ctx.rotate(-0.38);
         ctx.beginPath();
-        ctx.ellipse(0, 0, p.r * 2.2, p.r * 0.6, 0, Math.PI, Math.PI * 2);
+        ctx.ellipse(0, 0, p.r * 2.15, p.r * 0.58, 0, Math.PI, Math.PI * 2);
         ctx.strokeStyle = p.palette.lit + '88';
-        ctx.lineWidth = Math.max(2, p.r * 0.25);
+        ctx.lineWidth = Math.max(2, p.r * 0.24);
         ctx.stroke();
         ctx.restore();
       }
@@ -980,9 +956,9 @@
         ctx.translate(p.x, p.y);
         ctx.rotate(-0.38);
         ctx.beginPath();
-        ctx.ellipse(0, 0, p.r * 2.2, p.r * 0.6, 0, 0, Math.PI);
+        ctx.ellipse(0, 0, p.r * 2.15, p.r * 0.58, 0, 0, Math.PI);
         ctx.strokeStyle = p.palette.lit + 'cc';
-        ctx.lineWidth = Math.max(2, p.r * 0.25);
+        ctx.lineWidth = Math.max(2, p.r * 0.24);
         ctx.stroke();
         ctx.restore();
       }
@@ -990,103 +966,110 @@
       ctx.restore();
     }
 
-    /* 5. TRUE N-BODY PHYSICS ENGINE */
-    function stepPhysics(dt) {
-      if (!labStarted) return;
+    /* 4. SHARED DETERMINISTIC N-BODY INTEGRATOR */
+    function advanceStarsAndPlanetsOneSubstep(sList, pList, h) {
+      // 1. Binary Star Mutual Orbit
+      if (sList.length === 2) {
+        const s0 = sList[0], s1 = sList[1];
+        const dx = s1.x - s0.x;
+        const dy = s1.y - s0.y;
+        const distSq = dx * dx + dy * dy + 140;
+        const dist = Math.sqrt(distSq);
+        const f = (labConfig.G * s0.mass * s1.mass) / distSq;
+        const fx = (dx / dist) * f;
+        const fy = (dy / dist) * f;
 
-      // Bullet-Time Slow-Mo when aiming a world
-      const isAiming = interaction && (interaction.mode === 'slingNew' || interaction.mode === 'slingExisting');
-      const timeScale = (isAiming && labConfig.slowMoAim) ? 0.18 : 1.0;
-
-      const subSteps = 4;
-      const h = (dt * 0.85 * timeScale) / subSteps;
-
-      for (let step = 0; step < subSteps; step++) {
-        // 1. Binary Star Mutual Orbit (unless user is dragging a star)
-        if (stars.length === 2) {
-          const s0 = stars[0], s1 = stars[1];
-          const dx = s1.x - s0.x;
-          const dy = s1.y - s0.y;
-          const distSq = dx * dx + dy * dy + 140;
-          const dist = Math.sqrt(distSq);
-          const f = (labConfig.G * s0.mass * s1.mass) / distSq;
-          const fx = (dx / dist) * f;
-          const fy = (dy / dist) * f;
-
-          if (!s0.held) {
-            s0.vx += (fx / s0.mass) * h;
-            s0.vy += (fy / s0.mass) * h;
-            s0.x += s0.vx * h;
-            s0.y += s0.vy * h;
-          }
-          if (!s1.held) {
-            s1.vx -= (fx / s1.mass) * h;
-            s1.vy -= (fy / s1.mass) * h;
-            s1.x += s1.vx * h;
-            s1.y += s1.vy * h;
-          }
+        if (!s0.held) {
+          s0.vx += (fx / s0.mass) * h;
+          s0.vy += (fy / s0.mass) * h;
+          s0.x += s0.vx * h;
+          s0.y += s0.vy * h;
         }
+        if (!s1.held) {
+          s1.vx -= (fx / s1.mass) * h;
+          s1.vy -= (fy / s1.mass) * h;
+          s1.x += s1.vx * h;
+          s1.y += s1.vy * h;
+        }
+      }
 
-        // 2. N-Body Planet, Moon & Gas Giant Gravity
-        const accX = new Float64Array(planets.length);
-        const accY = new Float64Array(planets.length);
+      // 2. N-Body Accelerations
+      const n = pList.length;
+      for (let i = 0; i < n; i++) {
+        pList[i].ax = 0;
+        pList[i].ay = 0;
+      }
 
-        for (let i = 0; i < planets.length; i++) {
-          const p = planets[i];
-          if (p.held) continue;
-
-          // Star -> Planet Gravity (with Einstein relativistic precession if black hole)
-          for (const s of stars) {
+      for (let i = 0; i < n; i++) {
+        const p = pList[i];
+        if (!p.held) {
+          for (let sIdx = 0; sIdx < sList.length; sIdx++) {
+            const s = sList[sIdx];
             const dx = s.x - p.x;
             const dy = s.y - p.y;
-            const distSq = dx * dx + dy * dy + 55;
+            const distSq = dx * dx + dy * dy + STAR_SOFT;
             const dist = Math.sqrt(distSq);
             const relBoost = s.relativity ? (1 + s.relativity / dist) : 1;
             const accel = ((labConfig.G * s.mass) / distSq) * relBoost;
-            accX[i] += (dx / dist) * accel;
-            accY[i] += (dy / dist) * accel;
-          }
-
-          // Planet <-> Planet Mutual N-Body Gravity
-          for (let j = i + 1; j < planets.length; j++) {
-            const other = planets[j];
-            const dx = other.x - p.x;
-            const dy = other.y - p.y;
-            const distSq = dx * dx + dy * dy + 16;
-            const dist = Math.sqrt(distSq);
-            const nx = dx / dist;
-            const ny = dy / dist;
-
-            if (!p.held) {
-              const aP = (labConfig.G * other.mass) / distSq;
-              accX[i] += nx * aP;
-              accY[i] += ny * aP;
-            }
-            if (!other.held) {
-              const aO = (labConfig.G * p.mass) / distSq;
-              accX[j] -= nx * aO;
-              accY[j] -= ny * aO;
-            }
+            p.ax += (dx / dist) * accel;
+            p.ay += (dy / dist) * accel;
           }
         }
 
-        // Integrate velocities, positions, mergers, and Roche shredding
+        for (let j = i + 1; j < n; j++) {
+          const other = pList[j];
+          const dx = other.x - p.x;
+          const dy = other.y - p.y;
+          const distSq = dx * dx + dy * dy + PLANET_SOFT;
+          const dist = Math.sqrt(distSq);
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          if (!p.held) {
+            const aP = (labConfig.G * other.mass) / distSq;
+            p.ax += nx * aP;
+            p.ay += ny * aP;
+          }
+          if (!other.held) {
+            const aO = (labConfig.G * p.mass) / distSq;
+            other.ax -= nx * aO;
+            other.ay -= ny * aO;
+          }
+        }
+      }
+
+      for (let i = 0; i < n; i++) {
+        const p = pList[i];
+        if (p.held) continue;
+        p.vx += p.ax * h;
+        p.vy += p.ay * h;
+        p.x += p.vx * h;
+        p.y += p.vy * h;
+      }
+    }
+
+    function stepPhysics(dt) {
+      if (!labStarted) return;
+
+      const isAiming = interaction && (interaction.mode === 'slingNew' || interaction.mode === 'slingExisting');
+      const subSteps = (isAiming && labConfig.slowMoAim) ? 1 : 4;
+      const h = H_STEP * (isAiming && labConfig.slowMoAim ? 0.65 : 1.0);
+
+      for (let step = 0; step < subSteps; step++) {
+        advanceStarsAndPlanetsOneSubstep(stars, planets, h);
+
+        // Check Collisions, Mergers, Roche Shredding, and Periapsis Chimes
         for (let i = planets.length - 1; i >= 0; i--) {
           const p = planets[i];
           if (p.held) continue;
 
-          p.vx += accX[i] * h;
-          p.vy += accY[i] * h;
-          p.x += p.vx * h;
-          p.y += p.vy * h;
-
-          // Check Planet-Planet Mergers
+          // Planet-Planet Mergers
           let merged = false;
           for (let j = i - 1; j >= 0; j--) {
             const other = planets[j];
             if (other.held) continue;
             const dist = Math.hypot(other.x - p.x, other.y - p.y);
-            if (dist < (p.r + other.r) * 0.85) {
+            if (dist < (p.r + other.r) * 0.76) {
               const totalMass = p.mass + other.mass;
               const bigger = p.mass >= other.mass ? p : other;
               const smaller = p.mass < other.mass ? p : other;
@@ -1108,7 +1091,7 @@
           }
           if (merged) continue;
 
-          // Check Star Roche Limit Shredding & Impacts
+          // Star Roche Limit Shredding & Direct Impact
           let minStarDist = 99999;
           let closestStar = stars[0];
           for (const s of stars) {
@@ -1127,7 +1110,6 @@
               planets.splice(i, 1);
               continue;
             } else if (minStarDist < closestStar.rocheRadius && p.mass < 40) {
-              // Moons and rocky planets shred into glowing Saturn-style rings inside the Roche limit
               shredIntoRing(p.x, p.y, p.vx, p.vy, p.palette, 58);
               sfx.playTidalShred();
               shake = Math.min(8, shake + 3.5);
@@ -1155,7 +1137,7 @@
           }
         }
 
-        // 3. Update Debris Rings (pulled by both Stars and Heavy Gas Giants)
+        // Update Ring Debris Particles
         for (let i = ringDebris.length - 1; i >= 0; i--) {
           const d = ringDebris[i];
           let ax = 0, ay = 0, swallowed = false;
@@ -1184,8 +1166,8 @@
         }
       }
 
-      // Record Orbital Trails
-      const maxTrailLen = labConfig.longTrails ? 260 : 50;
+      // Record Smooth Trails
+      const maxTrailLen = labConfig.longTrails ? 270 : 52;
       for (const p of planets) {
         if (p.held) continue;
         p.trail.push({ x: p.x, y: p.y });
@@ -1222,114 +1204,155 @@
       ctx.restore();
     }
 
-    /* 6. FULL N-BODY LIVE HOLOGRAPHIC ORBIT PREDICTOR (NO SNAPPING) */
+    /* 5. CONIC SECTION CLASSIFIER & DETERMINISTIC DEEP FUTURE PREDICTOR */
+    function classifyConicSection(x, y, vx, vy, mass, targetPlanet) {
+      // 1. Check if bound in a Moon Capture Orbit around a heavy Gas Giant
+      for (const p of planets) {
+        if (p === targetPlanet || p.mass < 80 || mass >= p.mass) continue;
+        const dx = x - p.x;
+        const dy = y - p.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 85) {
+          const rvx = vx - p.vx;
+          const rvy = vy - p.vy;
+          const vRelSq = rvx * rvx + rvy * rvy;
+          const muGiant = labConfig.G * (p.mass + mass);
+          const specE = 0.5 * vRelSq - muGiant / Math.sqrt(d * d + PLANET_SOFT);
+          if (specE < 0) {
+            const hz = dx * rvy - dy * rvx;
+            const ecc = Math.sqrt(Math.max(0, 1 + (2 * specE * hz * hz) / (muGiant * muGiant)));
+            return {
+              label: `🌙 MOON CAPTURE CONIC (e = ${ecc.toFixed(2)})`,
+              color: '#c77dff'
+            };
+          }
+        }
+      }
+
+      // 2. Otherwise compute Conic Section & Eccentricity relative to Star / Binary Barycenter
+      let totalStarMass = 0, cmX = 0, cmY = 0, cmVx = 0, cmVy = 0;
+      for (const s of stars) {
+        totalStarMass += s.mass;
+        cmX += s.x * s.mass;
+        cmY += s.y * s.mass;
+        cmVx += s.vx * s.mass;
+        cmVy += s.vy * s.mass;
+      }
+      if (totalStarMass > 0) {
+        cmX /= totalStarMass;
+        cmY /= totalStarMass;
+        cmVx /= totalStarMass;
+        cmVy /= totalStarMass;
+      }
+
+      const rx = x - cmX;
+      const ry = y - cmY;
+      const r = Math.sqrt(rx * rx + ry * ry + STAR_SOFT);
+      const rvx = vx - cmVx;
+      const rvy = vy - cmVy;
+      const vSq = rvx * rvx + rvy * rvy;
+      const mu = labConfig.G * (totalStarMass + mass);
+
+      const specEnergy = 0.5 * vSq - mu / r;
+      const hz = rx * rvy - ry * rvx;
+      const eSq = 1 + (2 * specEnergy * hz * hz) / (mu * mu);
+      const ecc = Math.sqrt(Math.max(0, eSq));
+
+      if (specEnergy < 0) {
+        if (ecc < 0.06) {
+          return {
+            label: `✨ CIRCULAR CONIC (e = ${ecc.toFixed(2)})`,
+            color: '#00f59b'
+          };
+        }
+        return {
+          label: `🪐 ELLIPTICAL CONIC (e = ${ecc.toFixed(2)})`,
+          color: '#00f0ff'
+        };
+      } else if (ecc < 1.05) {
+        return {
+          label: `☄️ PARABOLIC ESCAPE CONIC (e ≈ ${ecc.toFixed(2)})`,
+          color: '#ffbe0b'
+        };
+      } else {
+        return {
+          label: `🚀 HYPERBOLIC SLINGSHOT (e = ${Math.min(9.9, ecc).toFixed(2)})`,
+          color: '#ff9933'
+        };
+      }
+    }
+
     function drawHolographicPredictor() {
       if (!interaction || interaction.mode === 'dragStar') return;
 
       const { startX, startY, vx, vy, r, mass, palette, hasRing, targetPlanet } = interaction;
 
-      // Clone active Stars and Planets so moving Gas Giants & Binary Stars affect the prediction!
-      const simStars = stars.map(s => ({ ...s }));
+      // Clone active world state & run the EXACT SAME deterministic integrator (H_STEP)
+      const simStars = stars.map(s => ({ ...s, held: false }));
       const simPlanets = planets
         .filter(p => p !== targetPlanet)
-        .map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy, r: p.r, mass: p.mass }));
+        .map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy, r: p.r, mass: p.mass, held: false, ax: 0, ay: 0 }));
 
-      let px = startX, py = startY, pvx = vx, pvy = vy;
-      const path = [{ x: px, y: py }];
-      let status = `${massClasses[labConfig.launchClass].label} // ELLIPTICAL ORBIT`;
-      if (targetPlanet) status = 'REDIRECTING WORLD // LIVE N-BODY PATH';
-      let pathColor = '#00f0ff';
+      const testBody = {
+        x: startX, y: startY, vx, vy, r, mass, held: false, ax: 0, ay: 0
+      };
+      simPlanets.push(testBody);
 
-      const h = 0.65;
-      let minR = 99999, maxR = 0;
+      const conic = classifyConicSection(startX, startY, vx, vy, mass, targetPlanet);
+      let status = conic.label;
+      let pathColor = conic.color;
 
-      for (let step = 0; step < 220; step++) {
-        // Advance Binary Stars in prediction
-        if (simStars.length === 2) {
-          const s0 = simStars[0], s1 = simStars[1];
-          const dx = s1.x - s0.x, dy = s1.y - s0.y;
-          const distSq = dx * dx + dy * dy + 140;
-          const dist = Math.sqrt(distSq);
-          const f = (labConfig.G * s0.mass * s1.mass) / distSq;
-          s0.vx += ((dx / dist) * f / s0.mass) * h;
-          s0.vy += ((dy / dist) * f / s0.mass) * h;
-          s1.vx -= ((dx / dist) * f / s1.mass) * h;
-          s1.vy -= ((dy / dist) * f / s1.mass) * h;
-          s0.x += s0.vx * h; s0.y += s0.vy * h;
-          s1.x += s1.vx * h; s1.y += s1.vy * h;
-        }
+      const totalSteps = labConfig.deepPredict ? 1750 : 560;
+      const path = [{ x: startX, y: startY }];
 
-        // Advance other Planets in prediction
-        for (const sp of simPlanets) {
-          let sax = 0, say = 0;
-          for (const s of simStars) {
-            const dx = s.x - sp.x, dy = s.y - sp.y;
-            const distSq = dx * dx + dy * dy + 55;
-            const dist = Math.sqrt(distSq);
-            const relBoost = s.relativity ? (1 + s.relativity / dist) : 1;
-            const accel = ((labConfig.G * s.mass) / distSq) * relBoost;
-            sax += (dx / dist) * accel;
-            say += (dy / dist) * accel;
-          }
-          sp.vx += sax * h;
-          sp.vy += say * h;
-          sp.x += sp.vx * h;
-          sp.y += sp.vy * h;
-        }
+      for (let step = 0; step < totalSteps; step++) {
+        advanceStarsAndPlanetsOneSubstep(simStars, simPlanets, H_STEP);
 
-        // Calculate acceleration on the aimed test world from Stars + Planets
-        let ax = 0, ay = 0, hit = false;
-        for (const s of simStars) {
-          const dx = s.x - px, dy = s.y - py;
-          const distSq = dx * dx + dy * dy + 55;
-          const dist = Math.sqrt(distSq);
-          if (dist < minR) minR = dist;
-          if (dist > maxR) maxR = dist;
-
+        let hit = false;
+        for (let sIdx = 0; sIdx < simStars.length; sIdx++) {
+          const s = simStars[sIdx];
+          const dist = Math.hypot(s.x - testBody.x, s.y - testBody.y);
           if (dist < s.r + r * 0.5) {
-            status = '⚠️ STELLAR IMPACT TRAJECTORY';
+            status = `⚠️ STELLAR IMPACT // ${conic.label}`;
             pathColor = '#ff2a85';
             hit = true;
             break;
           }
           if (dist < s.rocheRadius && mass < 40) {
-            status = '🪐 ROCHE LIMIT // TIDAL RING SHRED';
+            status = `🪐 ROCHE TIDAL SHRED // ${conic.label}`;
             pathColor = '#ffbe0b';
           }
-          const relBoost = s.relativity ? (1 + s.relativity / dist) : 1;
-          const accel = ((labConfig.G * s.mass) / distSq) * relBoost;
-          ax += (dx / dist) * accel;
-          ay += (dy / dist) * accel;
         }
-        if (hit) break;
+        if (hit) {
+          path.push({ x: testBody.x, y: testBody.y });
+          break;
+        }
 
-        for (const sp of simPlanets) {
-          const dx = sp.x - px, dy = sp.y - py;
-          const distSq = dx * dx + dy * dy + 16;
-          const dist = Math.sqrt(distSq);
-          if (dist < (sp.r + r) * 0.85) {
-            status = '💥 PLANETARY MERGER COLLISION';
+        for (let pIdx = 0; pIdx < simPlanets.length - 1; pIdx++) {
+          const sp = simPlanets[pIdx];
+          if (Math.hypot(sp.x - testBody.x, sp.y - testBody.y) < (sp.r + r) * 0.76) {
+            status = `💥 PLANETARY MERGER // ${conic.label}`;
             pathColor = '#ff9933';
             hit = true;
             break;
           }
-          const accel = (labConfig.G * sp.mass) / distSq;
-          ax += (dx / dist) * accel;
-          ay += (dy / dist) * accel;
         }
-        if (hit) break;
+        if (hit) {
+          path.push({ x: testBody.x, y: testBody.y });
+          break;
+        }
 
-        pvx += ax * h;
-        pvy += ay * h;
-        px += pvx * h;
-        py += pvy * h;
-        if (step % 2 === 0) path.push({ x: px, y: py });
+        if (step % 3 === 0) {
+          path.push({ x: testBody.x, y: testBody.y });
+        }
+        if (testBody.x < -W * 0.6 || testBody.x > W * 1.6 || testBody.y < -H * 0.6 || testBody.y > H * 1.6) {
+          break;
+        }
       }
 
       document.getElementById('telemetryHint').innerHTML = `<strong>${status}</strong>`;
 
       ctx.save();
-      // Draw Predicted Future N-Body Trajectory
       ctx.beginPath();
       for (let i = 0; i < path.length; i++) {
         if (i === 0) ctx.moveTo(path[i].x, path[i].y);
@@ -1343,22 +1366,21 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Draw Raw Analog Launch Vector Line
+      // Raw Analog Launch Vector Line
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.lineTo(interaction.curX, interaction.curY);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.68)';
       ctx.lineWidth = 1.6;
       ctx.stroke();
 
-      // Draw Preview World if launching a new one
       if (interaction.mode === 'slingNew') {
         drawVolumetricPlanet({ x: startX, y: startY, r, palette, hasRing });
       }
       ctx.restore();
     }
 
-    /* 7. POINTER INTERACTION: GRAB STARS, RE-SLING PLANETS, OR LAUNCH NEW */
+    /* 6. POINTER INTERACTION: GRAB STARS, RE-SLING PLANETS, OR LAUNCH NEW */
     function getCanvasCoords(e) {
       const rect = canvas.getBoundingClientRect();
       return {
@@ -1384,7 +1406,7 @@
             star: s
           };
           document.getElementById('telemetryHint').innerHTML =
-            '<strong>DRAGGING GRAVITY CORE</strong> // WARPING SPACETIME IN REAL TIME';
+            '<strong>DRAGGING GRAVITY CORE</strong> // MOVING SYSTEM CENTER OF MASS';
           return;
         }
       }
@@ -1392,7 +1414,7 @@
       // 2. Check if user grabbed an existing Planet, Moon, or Gas Giant
       for (let i = planets.length - 1; i >= 0; i--) {
         const p = planets[i];
-        if (Math.hypot(pt.x - p.x, pt.y - p.y) <= p.r + 18) {
+        if (Math.hypot(pt.x - p.x, pt.y - p.y) <= p.r + 16) {
           p.held = true;
           p.trail = [];
           interaction = {
@@ -1415,6 +1437,8 @@
       }
 
       // 3. Otherwise, spawn & aim a new body of the selected Mass Class
+      const minDim = Math.min(W, H);
+      const sizeScale = Math.max(0.76, Math.min(1.05, minDim / 520));
       const spec = massClasses[labConfig.launchClass];
       const pal = planetPalettes[Math.floor(Math.random() * planetPalettes.length)];
       interaction = {
@@ -1427,7 +1451,7 @@
         curY: pt.y,
         vx: 0,
         vy: 0,
-        r: spec.r,
+        r: spec.r * sizeScale,
         mass: spec.mass,
         palette: pal,
         hasRing: spec.hasRing
@@ -1445,7 +1469,6 @@
         s.x = pt.x;
         s.y = pt.y;
       } else {
-        // 100% Un-snapped Analog Velocity Control
         interaction.curX = pt.x;
         interaction.curY = pt.y;
         interaction.vx = (pt.x - interaction.startX) * VEL_SCALE;
@@ -1490,7 +1513,7 @@
     canvas.addEventListener('pointerup', finishInteraction);
     canvas.addEventListener('pointercancel', finishInteraction);
 
-    /* 8. RESIZE, UI BINDINGS & MAIN LOOP */
+    /* 7. RESIZE, UI BINDINGS & MAIN LOOP */
     function resizeCanvas() {
       const rect = document.getElementById('canvasFrame').getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1530,7 +1553,7 @@
     const allTogglesBtn = document.getElementById('allTogglesBtn');
 
     function areAllTogglesOn() {
-      return labConfig.showGrid && labConfig.slowMoAim && labConfig.longTrails;
+      return labConfig.deepPredict && labConfig.slowMoAim && labConfig.longTrails;
     }
 
     function syncAllTogglesButton() {
@@ -1539,8 +1562,8 @@
       allTogglesBtn.classList.toggle('all-on', allOn);
     }
 
-    document.getElementById('toggleGrid').addEventListener('change', e => {
-      labConfig.showGrid = e.target.checked;
+    document.getElementById('toggleDeepPredict').addEventListener('change', e => {
+      labConfig.deepPredict = e.target.checked;
       syncAllTogglesButton();
     });
     document.getElementById('toggleSlowMo').addEventListener('change', e => {
@@ -1550,23 +1573,23 @@
     document.getElementById('toggleLongTrails').addEventListener('change', e => {
       labConfig.longTrails = e.target.checked;
       if (!labConfig.longTrails) {
-        planets.forEach(p => { if (p.trail.length > 50) p.trail.splice(0, p.trail.length - 50); });
+        planets.forEach(p => { if (p.trail.length > 52) p.trail.splice(0, p.trail.length - 52); });
       }
       syncAllTogglesButton();
     });
 
     allTogglesBtn.addEventListener('click', () => {
       if (areAllTogglesOn()) {
-        // Return to ideal Default state (Grid ON, Slow-Mo ON, Long Spirograph Trails OFF)
-        labConfig.showGrid = true;
+        // Return to ideal Default state (Deep Predictor ON, Slow-Mo ON, Long Trails OFF)
+        labConfig.deepPredict = true;
         labConfig.slowMoAim = true;
         labConfig.longTrails = false;
       } else {
-        labConfig.showGrid = true;
+        labConfig.deepPredict = true;
         labConfig.slowMoAim = true;
         labConfig.longTrails = true;
       }
-      document.getElementById('toggleGrid').checked = labConfig.showGrid;
+      document.getElementById('toggleDeepPredict').checked = labConfig.deepPredict;
       document.getElementById('toggleSlowMo').checked = labConfig.slowMoAim;
       document.getElementById('toggleLongTrails').checked = labConfig.longTrails;
       syncAllTogglesButton();
@@ -1617,7 +1640,7 @@
       }
       ctx.globalAlpha = 1;
 
-      drawSpacetimeGrid();
+      drawRocheRings();
       stepPhysics(dt);
       drawTrailsAndDebris();
 
