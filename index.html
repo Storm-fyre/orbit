@@ -173,51 +173,13 @@
    color: #ffd166;
   }
 
-  /* Bottom Telemetry Status Bar */
-  .telemetry-bar {
-   position: absolute;
-   bottom: 10px;
-   left: 50%;
-   transform: translateX(-50%);
-   background: rgba(6, 10, 18, 0.86);
-   -webkit-backdrop-filter: blur(8px);
-   backdrop-filter: blur(8px);
-   border: 1px solid rgba(0, 229, 255, 0.22);
-   padding: 5px 14px;
-   border-radius: 6px;
-   font-size: 0.68rem;
-   font-family: var(--font-mono);
-   color: #9fb0cc;
-   pointer-events: none;
-   white-space: nowrap;
-   max-width: 94%;
-   overflow: hidden;
-   text-overflow: ellipsis;
-   z-index: 10;
-   letter-spacing: 0.5px;
-   transition: border-color 0.2s ease;
-  }
-
-  .canvas-frame.inspect-active .telemetry-bar {
-   border-color: rgba(255, 170, 0, 0.55);
-  }
-
-  .telemetry-bar strong {
-   color: var(--accent-cyan);
-   font-weight: 600;
-  }
-
-  .canvas-frame.inspect-active .telemetry-bar strong {
-   color: var(--accent-amber);
-  }
-
   /* Start Overlay */
   .start-overlay {
    position: absolute;
    inset: 0;
-   background: rgba(3, 5, 9, 0.72);
-   -webkit-backdrop-filter: blur(6px);
-   backdrop-filter: blur(6px);
+   background: rgba(3, 5, 9, 0.76);
+   -webkit-backdrop-filter: blur(7px);
+   backdrop-filter: blur(7px);
    display: flex;
    flex-direction: column;
    align-items: center;
@@ -250,12 +212,27 @@
    animation: pulseFrame 2.2s infinite ease-in-out;
   }
 
+  .start-platform-note {
+   margin-top: 12px;
+   padding: 5px 14px;
+   border-radius: 4px;
+   background: rgba(255, 170, 0, 0.1);
+   border: 1px solid rgba(255, 170, 0, 0.4);
+   color: #ffd166;
+   font-family: var(--font-mono);
+   font-weight: 700;
+   font-size: 0.7rem;
+   letter-spacing: 0.9px;
+   text-transform: uppercase;
+  }
+
   .start-sub {
    margin-top: 10px;
-   font-size: 0.72rem;
+   font-size: 0.68rem;
    font-family: var(--font-mono);
    color: var(--text-muted);
    letter-spacing: 0.5px;
+   line-height: 1.5;
   }
 
   @keyframes pulseFrame {
@@ -270,11 +247,11 @@
    -webkit-backdrop-filter: blur(20px);
    backdrop-filter: blur(20px);
    border-left: 1px solid var(--border-glass);
-   padding: 10px 13px;
+   padding: 12px 13px;
    display: flex;
    flex-direction: column;
    justify-content: space-between;
-   gap: 7px;
+   gap: 8px;
    z-index: 15;
    overflow-y: auto;
    flex-shrink: 0;
@@ -290,9 +267,9 @@
    background: rgba(255, 255, 255, 0.04);
    border: 1px solid var(--border-glass);
    color: var(--text-muted);
-   padding: 6px 8px;
+   padding: 7px 8px;
    border-radius: 6px;
-   font-size: 0.67rem;
+   font-size: 0.68rem;
    font-family: var(--font-mono);
    font-weight: 600;
    letter-spacing: 0.5px;
@@ -315,7 +292,7 @@
 
   .action-btn {
    flex: 1;
-   padding: 7px 8px;
+   padding: 8px 8px;
    border-radius: 6px;
    border: 1px solid rgba(0, 229, 255, 0.4);
    background: rgba(0, 229, 255, 0.12);
@@ -328,6 +305,7 @@
    transition: all 0.18s ease;
    white-space: nowrap;
    text-transform: uppercase;
+   text-align: center;
   }
 
   .action-btn:hover {
@@ -335,53 +313,30 @@
    box-shadow: 0 0 14px rgba(0, 229, 255, 0.25);
   }
 
-  .action-btn.secondary {
+  /* Inspect Mode Button (Paired Next to Reset System) */
+  .action-btn.inspect-btn {
    border-color: rgba(255, 170, 0, 0.45);
-   background: rgba(255, 170, 0, 0.12);
+   background: rgba(255, 170, 0, 0.1);
    color: #ffd166;
   }
 
-  .action-btn.secondary.all-on {
-   border-color: var(--border-glass);
-   background: rgba(255, 255, 255, 0.05);
-   color: var(--text-muted);
+  .action-btn.inspect-btn:hover {
+   background: rgba(255, 170, 0, 0.2);
+   border-color: rgba(255, 170, 0, 0.8);
   }
 
-  /* Dedicated Inspect Mode Button */
-  .inspect-toggle-btn {
-   width: 100%;
-   padding: 8px 10px;
-   border-radius: 6px;
-   border: 1px solid rgba(255, 170, 0, 0.4);
-   background: rgba(255, 170, 0, 0.08);
-   color: #ffd166;
-   font-family: var(--font-mono);
-   font-weight: 700;
-   font-size: 0.7rem;
-   letter-spacing: 0.7px;
-   cursor: pointer;
-   transition: all 0.2s ease;
-   text-transform: uppercase;
-   text-align: center;
-  }
-
-  .inspect-toggle-btn:hover {
-   background: rgba(255, 170, 0, 0.18);
-   border-color: rgba(255, 170, 0, 0.75);
-  }
-
-  .inspect-toggle-btn.active {
-   background: rgba(255, 170, 0, 0.24);
+  .action-btn.inspect-btn.active {
+   background: rgba(255, 170, 0, 0.26);
    border-color: #ffaa00;
    color: #ffffff;
-   box-shadow: 0 0 18px rgba(255, 170, 0, 0.32);
+   box-shadow: 0 0 16px rgba(255, 170, 0, 0.35);
   }
 
   .control-section {
    background: var(--bg-card);
    border: 1px solid var(--border-glass);
    border-radius: 8px;
-   padding: 8px 10px;
+   padding: 9px 10px;
    display: flex;
    flex-direction: column;
    gap: 6px;
@@ -492,24 +447,29 @@
    box-shadow: inset 0 0 10px rgba(0, 229, 255, 0.15);
   }
 
-  /* Compact Landscape Tuning for Mobile Screens */
+  .pill-btn.paused-play {
+   background: rgba(0, 245, 155, 0.18);
+   border-color: var(--accent-teal);
+   color: var(--accent-teal);
+   box-shadow: 0 0 12px rgba(0, 245, 155, 0.22);
+  }
+
+  /* Compact Landscape Tuning for Mobile Screens (Clears Top Status Bar Icons) */
   @media (max-height: 520px), (max-width: 920px) {
-   .stage-container { padding: 5px 8px; }
+   .stage-container { padding: 6px 8px; }
    .control-panel {
-    width: 250px;
-    padding: 7px 9px;
+    width: 252px;
+    padding: 26px 9px 8px;
     gap: 5px;
    }
    .control-section {
-    padding: 5px 8px;
+    padding: 6px 8px;
     gap: 4px;
    }
-   .util-btn, .action-btn { padding: 5px 5px; font-size: 0.62rem; }
-   .inspect-toggle-btn { padding: 6px 6px; font-size: 0.64rem; }
+   .util-btn, .action-btn { padding: 6px 5px; font-size: 0.62rem; }
    .pill-btn { padding: 5px 2px; font-size: 0.6rem; }
    .toggle-row { font-size: 0.67rem; }
-   .telemetry-bar { font-size: 0.58rem; padding: 4px 10px; bottom: 7px; }
-   .inspector-deck { top: 8px; padding: 4px 8px; gap: 5px; }
+   .inspector-deck { top: 10px; padding: 4px 8px; gap: 5px; }
    .deck-btn { padding: 4px 6px; font-size: 0.58rem; }
   }
 
@@ -546,40 +506,36 @@
       <button class="deck-btn exit-btn" id="btnExitInspect">✕ EXIT</button>
      </div>
 
-     <div class="telemetry-bar" id="telemetryBar">
-      <strong>INTERACTIVE TELEMETRY</strong> // TAP EMPTY SPACE FOR CIRCULAR ORBIT • DRAG TO SLINGSHOT • GRAB BODY TO REDIRECT
-     </div>
-
-     <!-- Tap Anywhere Overlay -->
+     <!-- Tap Anywhere Start Overlay -->
      <div class="start-overlay" id="startOverlay">
       <div class="start-badge">INITIALIZE ORBITAL TELEMETRY</div>
-      <div class="start-sub">TAP ANYWHERE TO ENGAGE N-BODY INTEGRATOR &amp; LANDSCAPE TELEMETRY</div>
+      <div class="start-platform-note">THIS IS OPTIMISED FOR LAPTOP, BUT WORKS WITH MOBILE TOO</div>
+      <div class="start-sub">
+       TAP EMPTY SPACE: AUTO CIRCULAR ORBIT • DRAG: SLINGSHOT • GRAB BODY: REDIRECT
+      </div>
      </div>
     </div>
    </div>
 
    <!-- Technical Controls Sidebar -->
    <aside class="control-panel">
-    <!-- Top Utility Row (Fullscreen Expand + Audio) -->
+    <!-- Row 1: Top Utility Row (Fullscreen Expand + Audio) -->
     <div class="btn-row">
      <button class="util-btn" id="fsBtn">⛶ EXPAND</button>
      <button class="util-btn active" id="soundBtn">AUDIO: ON</button>
     </div>
 
-    <!-- System Reset & All Modes Row -->
+    <!-- Row 2: System Reset & Inspect Mode Toggle -->
     <div class="btn-row">
      <button class="action-btn" id="resetSystemBtn">RESET SYSTEM</button>
-     <button class="action-btn secondary" id="allTogglesBtn">ALL MODES ON</button>
+     <button class="action-btn inspect-btn" id="inspectModeBtn">🔍 INSPECT: OFF</button>
     </div>
 
-    <!-- Dedicated Inspect Mode Toggle (Locks Physics & Enables Thrusters/Detonate) -->
-    <button class="inspect-toggle-btn" id="inspectModeBtn">🔍 INSPECT MODE: OFF</button>
-
-    <!-- Time-Warp Integrator Controls -->
+    <!-- Time-Warp Integrator Controls (Dynamic PAUSE <-> PLAY) -->
     <div class="control-section">
      <div class="section-label">Time Warp // Integrator Rate</div>
      <div class="pill-grid cols-4" id="timeWarpGroup">
-      <button class="pill-btn" data-speed="0">PAUSE</button>
+      <button class="pill-btn" id="pausePlayBtn" data-speed="0">PAUSE</button>
       <button class="pill-btn active" data-speed="1">1X</button>
       <button class="pill-btn" data-speed="2">2X</button>
       <button class="pill-btn" data-speed="4">4X</button>
@@ -812,6 +768,7 @@
    launchClass: 'planet', // 'moon' | 'planet' | 'giant' | 'swarm'
    system: 'solar',
    timeScale: 1, // 0 = PAUSE, 1 = 1X, 2 = 2X, 4 = 4X
+   lastActiveSpeed: 1,
    G: 0.42
   };
 
@@ -819,7 +776,7 @@
    moon:   { r: 3.6,  mass: 1.2,   hasRing: false, code: 'SAT', label: 'SATELLITE' },
    planet: { r: 6.8,  mass: 22.0,  hasRing: false, code: 'TER', label: 'TERRESTRIAL' },
    giant:  { r: 11.8, mass: 220.0, hasRing: true,  code: 'JOV', label: 'JOVIAN GIANT' },
-   swarm:  { r: 2.3,  mass: 0.35,  hasRing: false, code: 'AST', label: 'ASTEROID SWARM' }
+   swarm:  { r: 2.4,  mass: 0.45,  hasRing: false, code: 'AST', label: 'ASTEROID SWARM' }
   };
 
   const celestialPalettes = [
@@ -916,7 +873,7 @@
    floatingCallouts.push({ x, y, text, color, life: 1.0 });
   }
 
-  function spawnBody(x, y, vx, vy, r, mass, palette, hasRing = false, designation = null, silentPulse = false) {
+  function spawnBody(x, y, vx, vy, r, mass, palette, hasRing = false, designation = null, silentPulse = false, swarmGrace = 0) {
    const prefix = mass >= 100 ? 'JOV' : (mass >= 10 ? 'TER' : (mass >= 1 ? 'SAT' : 'AST'));
    const code = designation || `${prefix}-${String(bodyCounter++).padStart(2, '0')}`;
    const body = {
@@ -930,6 +887,7 @@
     approaching: false,
     periapsisCooldown: 0,
     slingshotCooldown: 0,
+    swarmGrace,
     prevSpeed: Math.hypot(vx, vy),
     held: false
    };
@@ -940,27 +898,42 @@
    return body;
   }
 
+  // Spawns a 12-asteroid cluster that fans out into an orbital stream before accreting over 2.5 - 5 seconds
   function spawnSwarmCluster(cx, cy, baseVx, baseVy, sizeScale, palette) {
    const count = 12;
    const spec = massClasses.swarm;
    spawnPulseRing(cx, cy, 4, 34, '#00e5ff', 0.04);
+
+   const baseSpd = Math.hypot(baseVx, baseVy);
+   const tx = baseSpd > 0.05 ? (baseVx / baseSpd) : 1;
+   const ty = baseSpd > 0.05 ? (baseVy / baseSpd) : 0;
+   const nx = -ty;
+   const ny = tx;
+
    for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
-    const rad = 4 + Math.random() * 12;
-    const px = cx + Math.cos(angle) * rad;
-    const py = cy + Math.sin(angle) * rad;
-    const dvx = (Math.random() - 0.5) * 0.16;
-    const dvy = (Math.random() - 0.5) * 0.16;
+    const along = (i - (count - 1) / 2) * 3.8 + (Math.random() - 0.5) * 2.0;
+    const across = (Math.random() - 0.5) * 14.0;
+    const px = cx + tx * along + nx * across;
+    const py = cy + ty * along + ny * across;
+
+    // Slight orbital velocity dispersion so they stretch into a crescent before mutual gravity pulls them together
+    const dvAlong = (i - (count - 1) / 2) * 0.018;
+    const dvAcross = (Math.random() - 0.5) * 0.07;
     const pal = i % 2 === 0 ? palette : celestialPalettes[(i + 2) % celestialPalettes.length];
+
+    // Staggered grace window (~1.8s to ~4.2s) so rocks collide in a multi-second mid-orbit chain reaction!
+    const graceUnits = 95 + i * 11 + Math.random() * 18;
     spawnBody(
      px, py,
-     baseVx + dvx, baseVy + dvy,
+     baseVx + tx * dvAlong + nx * dvAcross,
+     baseVy + ty * dvAlong + ny * dvAcross,
      spec.r * sizeScale * (0.85 + Math.random() * 0.3),
      spec.mass,
      pal,
      false,
      null,
-     true
+     true,
+     graceUnits
     );
    }
   }
@@ -973,7 +946,6 @@
     let px = x, py = y, pvx = vx, pvy = vy;
 
     if (hitStar) {
-     // Eject powder outside the star's corona with tangential orbital swirl so it never vanishes inside the star
      const impactAngle = Math.atan2(y - hitStar.y, x - hitStar.x);
      const spreadAngle = impactAngle + (Math.random() - 0.5) * 1.45;
      const surfaceR = hitStar.r + 2.5 + Math.random() * 10;
@@ -985,7 +957,6 @@
      const rx = Math.cos(spreadAngle);
      const ry = Math.sin(spreadAngle);
 
-     // Project impactor velocity onto tangent to preserve spin direction
      const tangDot = (vx - hitStar.vx) * tx + (vy - hitStar.vy) * ty;
      const spinSign = tangDot >= 0 ? 1 : -1;
      const orbSpeed = softenedCircularSpeed(hitStar.mass, surfaceR, STAR_SOFT) * (0.55 + Math.random() * 0.65);
@@ -1011,7 +982,6 @@
      r: 0.75 + Math.random() * 1.45,
      color: Math.random() > 0.38 ? palette.lit : palette.mid,
      life: 1.0,
-     // Decay is calibrated per 60Hz frame (170 to 205 frames = ~3.0 seconds)
      frameDecay: 1 / (170 + Math.random() * 35)
     });
    }
@@ -1028,7 +998,7 @@
 
    frame.classList.toggle('inspect-active', labConfig.inspectMode);
    btnMod.classList.toggle('active', labConfig.inspectMode);
-   btnMod.textContent = labConfig.inspectMode ? '🔍 INSPECT MODE: ON' : '🔍 INSPECT MODE: OFF';
+   btnMod.textContent = labConfig.inspectMode ? '🔍 INSPECT: ON' : '🔍 INSPECT: OFF';
 
    if (!labConfig.inspectMode) {
     deck.classList.add('hidden');
@@ -1045,22 +1015,6 @@
      bRet.style.display = 'none';
      bDet.style.display = 'none';
     }
-   }
-   updateDefaultStatusBar();
-  }
-
-  function updateDefaultStatusBar() {
-   const bar = document.getElementById('telemetryBar');
-   if (trackedBody && planets.includes(trackedBody)) {
-    const el = classifyConicSection(trackedBody.x, trackedBody.y, trackedBody.vx, trackedBody.vy, trackedBody.mass, trackedBody);
-    const bary = getSystemBarycenter();
-    const distAU = (Math.hypot(trackedBody.x - bary.x, trackedBody.y - bary.y) / AU_PIXELS).toFixed(2);
-    const spd = Math.hypot(trackedBody.vx, trackedBody.vy).toFixed(2);
-    bar.innerHTML = `<strong>TRACKING [${trackedBody.code}]</strong> // ${el.conic} • e = ${el.ecc.toFixed(3)} • r = ${distAU} AU • v = ${spd}`;
-   } else if (labConfig.inspectMode) {
-    bar.innerHTML = '<strong>INSPECT MODE ACTIVE</strong> // PHYSICS LOCKED • TAP ANY ORBITING BODY TO ENGAGE THRUSTERS &amp; KEPLER TELEMETRY';
-   } else {
-    bar.innerHTML = '<strong>INTERACTIVE TELEMETRY</strong> // TAP EMPTY SPACE FOR CIRCULAR ORBIT • DRAG TO SLINGSHOT • GRAB BODY TO REDIRECT';
    }
   }
 
@@ -1248,7 +1202,6 @@
   }
 
   function drawInspectOverlays() {
-   // In Inspect Mode, show subtle radar rings and ID designations on all bodies so they are easy to tap
    if (labConfig.inspectMode) {
     ctx.save();
     ctx.font = '600 8.5px "JetBrains Mono", monospace';
@@ -1273,6 +1226,7 @@
    const bary = getSystemBarycenter();
    const distAU = (Math.hypot(p.x - bary.x, p.y - bary.y) / AU_PIXELS).toFixed(2);
    const spd = Math.hypot(p.vx, p.vy).toFixed(2);
+   const el = classifyConicSection(p.x, p.y, p.vx, p.vy, p.mass, p);
 
    ctx.save();
    const br = p.r + 8;
@@ -1300,17 +1254,17 @@
     ctx.stroke();
    }
 
-   // Edge-safe Inspector Label
-   const flipX = p.x > W - 130;
-   const lx = flipX ? p.x - br - 6 : p.x + br + 6;
-   const ly = Math.max(24, Math.min(H - 24, p.y - 4));
+   // On-Canvas Complete Keplerian Readout next to Tracked Body
+   const flipX = p.x > W - 155;
+   const lx = flipX ? p.x - br - 7 : p.x + br + 7;
+   const ly = Math.max(26, Math.min(H - 34, p.y - 8));
    ctx.textAlign = flipX ? 'right' : 'left';
    ctx.font = '700 10px "JetBrains Mono", monospace';
    ctx.fillStyle = '#ffaa00';
-   ctx.fillText(p.code, lx, ly);
+   ctx.fillText(`${p.code} // ${el.conic}`, lx, ly);
    ctx.font = '500 9px "JetBrains Mono", monospace';
    ctx.fillStyle = '#edf2ff';
-   ctx.fillText(`${distAU}AU  v:${spd}`, lx, ly + 11);
+   ctx.fillText(`r:${distAU}AU  v:${spd}  e:${el.ecc.toFixed(2)}`, lx, ly + 12);
    ctx.restore();
   }
 
@@ -1433,7 +1387,6 @@
 
   /* 4. SHARED DETERMINISTIC N-BODY INTEGRATOR */
   function advanceStarsAndPlanetsOneSubstep(sList, pList, h) {
-   // Mutual Star-Star Gravitation (Supports Binary + Emergent Ignited Stars)
    if (sList.length >= 2) {
     for (let i = 0; i < sList.length; i++) {
      for (let j = i + 1; j < sList.length; j++) {
@@ -1491,7 +1444,10 @@
      const other = pList[j];
      const dx = other.x - p.x;
      const dy = other.y - p.y;
-     const distSq = dx * dx + dy * dy + PLANET_SOFT;
+     // Gently soften mutual pull during initial swarm dispersion so rocks fan into an arc before accreting
+     const bothInSwarmGrace = (p.swarmGrace > 0 && other.swarmGrace > 0);
+     const soft = bothInSwarmGrace ? 95 : PLANET_SOFT;
+     const distSq = dx * dx + dy * dy + soft;
      const dist = Math.sqrt(distSq);
      const nx = dx / dist;
      const ny = dy / dist;
@@ -1532,12 +1488,17 @@
     for (let i = planets.length - 1; i >= 0; i--) {
      const p = planets[i];
      if (!p || p.held) continue;
+     if (p.swarmGrace > 0) p.swarmGrace -= h;
 
      // 1. Planet-Planet Physical Mergers & Emergent Stellar Ignition
      let merged = false;
      for (let j = i - 1; j >= 0; j--) {
       const other = planets[j];
       if (!other || other.held) continue;
+
+      // Delay asteroid-to-asteroid fusion until each pair's orbital dispersion grace window finishes
+      if (p.swarmGrace > 0 && other.swarmGrace > 0) continue;
+
       const dist = Math.hypot(other.x - p.x, other.y - p.y);
       if (dist < (p.r + other.r) * 0.78) {
        const totalMass = p.mass + other.mass;
@@ -1553,7 +1514,8 @@
        if (totalMass > 60) other.hasRing = true;
        if (trackedBody === p) trackedBody = other;
 
-       spawnOrbitalPowder(other.x, other.y, other.vx, other.vy, smaller.palette, 45, null);
+       const powderCount = totalMass < 3 ? 16 : 45;
+       spawnOrbitalPowder(other.x, other.y, other.vx, other.vy, smaller.palette, powderCount, null);
        planets.splice(i, 1);
 
        // Check Emergent Stellar Ignition Threshold!
@@ -1579,7 +1541,7 @@
         syncInspectorDeckUI();
        } else {
         sfx.playImpact();
-        shake = Math.min(6, shake + 2.5);
+        shake = Math.min(6, shake + (totalMass < 3 ? 0.8 : 2.5));
        }
        merged = true;
        break;
@@ -1616,7 +1578,6 @@
      }
 
      if (closestStar && minStarDist < closestStar.r + p.r * 0.45) {
-      // Burst into 75 swirling corona powder particles that orbit & dissolve over 3 full seconds!
       spawnOrbitalPowder(p.x, p.y, p.vx, p.vy, p.palette, 75, closestStar);
       spawnPulseRing(p.x, p.y, 3, 28, p.palette.lit, 0.045);
       sfx.playImpact();
@@ -1654,7 +1615,6 @@
     // Update 3-Second Dissolving Orbital Powder
     for (let i = impactDebris.length - 1; i >= 0; i--) {
      const d = impactDebris[i];
-     // Divide frameDecay by 4 substeps so 1X speed = exact 60Hz frame decay (~3.0 seconds)
      d.life -= (d.frameDecay / 4) * (h / H_STEP);
      if (d.life <= 0) {
       impactDebris.splice(i, 1);
@@ -1667,7 +1627,6 @@
       const distSq = dx * dx + dy * dy + STAR_SOFT;
       const dist = Math.sqrt(distSq);
 
-      // Skim along the star's corona surface instead of getting swallowed early
       const minSurface = s.r * 1.03;
       if (dist < minSurface) {
        const nx = -dx / dist;
@@ -1714,47 +1673,56 @@
     fc.life -= 0.016;
     if (fc.life <= 0) floatingCallouts.splice(i, 1);
    }
-
-   if (!interaction && trackedBody) {
-    updateDefaultStatusBar();
-   }
   }
 
-  // Batched Gradient-Tapered Orbit Trails + Swirling Powder Renderer
+  // Silky-Smooth Per-Vertex Cubic Smoothstep Trail Tapering + Swirling Powder Renderer
   function drawTrailsAndDebris() {
    ctx.save();
    ctx.lineCap = 'round';
    ctx.lineJoin = 'round';
-   const SEGMENTS = 8;
 
    for (const p of planets) {
-    const len = p.trail.length;
+    const trail = p.trail;
+    const len = trail.length;
     if (len < 2) continue;
     ctx.strokeStyle = p.palette.mid;
 
-    for (let b = 0; b < SEGMENTS; b++) {
-     const startIdx = Math.floor((b / SEGMENTS) * (len - 1));
-     const endIdx = Math.floor(((b + 1) / SEGMENTS) * (len - 1));
-     if (endIdx <= startIdx) continue;
-
-     const frac = (b + 1) / SEGMENTS; // 0 = oldest tip, 1 = newest behind planet
-     ctx.beginPath();
-     for (let t = startIdx; t <= endIdx; t++) {
-      if (t === startIdx) ctx.moveTo(p.trail[t].x, p.trail[t].y);
-      else ctx.lineTo(p.trail[t].x, p.trail[t].y);
+    if (labConfig.longTrails) {
+     // Persistent Precession Mode: Per-vertex smoothstep taper on oldest 45%, seamless join to crisp 55% head
+     const taperEnd = Math.max(2, Math.floor((len - 1) * 0.45));
+     for (let i = 0; i < taperEnd; i++) {
+      const t = (i + 1) / taperEnd;
+      const s = t * t * (3 - 2 * t); // Cubic Hermite smoothstep (0.0 -> 1.0)
+      ctx.globalAlpha = 0.01 + 0.59 * s;
+      ctx.lineWidth = 0.15 + 1.25 * s;
+      ctx.beginPath();
+      ctx.moveTo(trail[i].x, trail[i].y);
+      ctx.lineTo(trail[i + 1].x, trail[i + 1].y);
+      ctx.stroke();
      }
-
-     if (labConfig.longTrails) {
-      // Persistent Mode: Keep newest 65% crisp for rosette geometry, smoothly taper oldest 35%
-      const taper = frac < 0.35 ? (frac / 0.35) : 1.0;
-      ctx.globalAlpha = 0.04 + 0.56 * taper;
-      ctx.lineWidth = 0.25 + 1.15 * taper;
-     } else {
-      // Normal Mode: Smooth comet-tail taper from planet down to vanishing tip
-      ctx.globalAlpha = 0.03 + 0.52 * Math.pow(frac, 1.35);
-      ctx.lineWidth = 0.2 + 1.65 * frac;
+     if (len - 1 > taperEnd) {
+      ctx.globalAlpha = 0.60;
+      ctx.lineWidth = 1.40;
+      ctx.beginPath();
+      ctx.moveTo(trail[taperEnd].x, trail[taperEnd].y);
+      for (let i = taperEnd + 1; i < len; i++) {
+       ctx.lineTo(trail[i].x, trail[i].y);
+      }
+      ctx.stroke();
      }
-     ctx.stroke();
+    } else {
+     // Normal Trail Mode: Continuous per-vertex smoothstep taper across the entire comet wake
+     const totalSegs = len - 1;
+     for (let i = 0; i < totalSegs; i++) {
+      const t = (i + 1) / totalSegs;
+      const s = t * t * (3 - 2 * t);
+      ctx.globalAlpha = 0.01 + 0.56 * (s * s);
+      ctx.lineWidth = 0.15 + 1.70 * s;
+      ctx.beginPath();
+      ctx.moveTo(trail[i].x, trail[i].y);
+      ctx.lineTo(trail[i + 1].x, trail[i + 1].y);
+      ctx.stroke();
+     }
     }
    }
    ctx.restore();
@@ -1870,23 +1838,41 @@
   }
 
   function drawFlightComputerPredictor() {
-   if (!interaction || interaction.mode === 'dragStar') return;
+   if (!interaction) return;
+
+   // On-Canvas HUD Tag when dragging a Star
+   if (interaction.mode === 'dragStar') {
+    const s = interaction.star;
+    ctx.save();
+    const flipX = s.x > W - 175;
+    const lx = flipX ? s.x - s.r - 10 : s.x + s.r + 10;
+    const ly = Math.max(24, Math.min(H - 24, s.y - 4));
+    ctx.textAlign = flipX ? 'right' : 'left';
+    ctx.font = '700 10px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#00e5ff';
+    ctx.fillText(`SHIFTING [${s.name}]`, lx, ly);
+    ctx.font = '500 9px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#9fb0cc';
+    ctx.fillText('BARYCENTER RELOCATION', lx, ly + 12);
+    ctx.restore();
+    return;
+   }
 
    const { startX, startY, vx, vy, r, mass, palette, hasRing, targetPlanet } = interaction;
 
    const simStars = stars.map(s => ({ ...s, held: false }));
    const simPlanets = planets
     .filter(p => p !== targetPlanet)
-    .map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy, r: p.r, mass: p.mass, held: false, ax: 0, ay: 0 }));
+    .map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy, r: p.r, mass: p.mass, held: false, ax: 0, ay: 0, swarmGrace: 0 }));
 
    const testBody = {
-    x: startX, y: startY, vx, vy, r, mass, held: false, ax: 0, ay: 0
+    x: startX, y: startY, vx, vy, r, mass, held: false, ax: 0, ay: 0, swarmGrace: 0
    };
    simPlanets.push(testBody);
 
    const telemetry = classifyConicSection(startX, startY, vx, vy, mass, targetPlanet);
    const modeTag = (interaction.mode === 'slingNew' && !interaction.hasDragged) ? 'AUTO-CIRCULAR // ' : '';
-   let statusText = `${modeTag}${telemetry.conic} // e = ${telemetry.ecc.toFixed(3)} // v = ${telemetry.vMag.toFixed(2)}`;
+   let hudHeader = `${modeTag}${telemetry.conic}`;
    let pathColor = telemetry.color;
 
    const totalSteps = labConfig.deepPredict ? 1850 : 620;
@@ -1924,7 +1910,7 @@
     for (let sIdx = 0; sIdx < simStars.length; sIdx++) {
      const s = simStars[sIdx];
      if (Math.hypot(s.x - testBody.x, s.y - testBody.y) < s.r + r * 0.45) {
-      statusText = `IMPACT TRAJECTORY (${s.name}) // e = ${telemetry.ecc.toFixed(2)}`;
+      hudHeader = `IMPACT (${s.name})`;
       pathColor = '#ff3366';
       impactPoint = { x: testBody.x, y: testBody.y };
       hit = true;
@@ -1940,9 +1926,7 @@
      const sp = simPlanets[pIdx];
      if (Math.hypot(sp.x - testBody.x, sp.y - testBody.y) < (sp.r + r) * 0.78) {
       const willIgnite = (sp.mass + mass) >= IGNITION_MASS_THRESHOLD;
-      statusText = willIgnite
-       ? `★ CRITICAL MASS INTERCEPT (STELLAR IGNITION) // M = ${(sp.mass + mass).toFixed(0)}`
-       : `ORBITAL INTERCEPT / MERGER // e = ${telemetry.ecc.toFixed(2)}`;
+      hudHeader = willIgnite ? '★ STELLAR IGNITION' : 'ORBITAL MERGER';
       pathColor = willIgnite ? '#00f59b' : '#ffaa00';
       impactPoint = { x: testBody.x, y: testBody.y };
       hit = true;
@@ -1961,8 +1945,6 @@
      break;
     }
    }
-
-   document.getElementById('telemetryBar').innerHTML = `<strong>${statusText}</strong>`;
 
    ctx.save();
    ctx.beginPath();
@@ -1999,18 +1981,20 @@
     drawVolumetricPlanet({ x: startX, y: startY, r, palette, hasRing });
    }
 
+   // Edge-Safe Live Cursor HUD Readout
    const refX = interaction.curX;
    const refY = interaction.curY;
-   const flipLeft = refX > W - 165;
-   const hudX = flipLeft ? Math.max(150, refX - 14) : Math.max(10, refX + 14);
+   const flipLeft = refX > W - 185;
+   const hudX = flipLeft ? Math.max(170, refX - 14) : Math.max(10, refX + 14);
    const hudY = Math.max(22, Math.min(H - 26, refY - 10));
 
    ctx.textAlign = flipLeft ? 'right' : 'left';
-   ctx.font = '600 10px "JetBrains Mono", monospace';
+   ctx.font = '700 10px "JetBrains Mono", monospace';
    ctx.fillStyle = pathColor;
-   ctx.fillText(`${telemetry.conic}`, hudX, hudY);
+   ctx.fillText(hudHeader, hudX, hudY);
+   ctx.font = '500 9.5px "JetBrains Mono", monospace';
    ctx.fillStyle = '#9fb0cc';
-   ctx.fillText(`v:${telemetry.vMag.toFixed(2)}  e:${telemetry.ecc.toFixed(2)}`, hudX, hudY + 13);
+   ctx.fillText(`v:${telemetry.vMag.toFixed(2)}  e:${telemetry.ecc.toFixed(3)}`, hudX, hudY + 13);
 
    ctx.restore();
   }
@@ -2044,7 +2028,7 @@
    // Dedicated INSPECT MODE: Never grabs or alters orbits; only selects/deselects planets
    if (labConfig.inspectMode) {
     let bestPlanet = null;
-    let bestDist = 34; // Generous 34px touch radius
+    let bestDist = 34;
     for (const p of planets) {
      const d = Math.hypot(pt.x - p.x, pt.y - p.y);
      if (d < p.r + bestDist) {
@@ -2072,8 +2056,6 @@
       mode: 'dragStar',
       star: s
      };
-     document.getElementById('telemetryBar').innerHTML =
-      `<strong>REPOSITIONING PRIMARY ATTRACTOR (${s.name})</strong> // BARYCENTER SHIFT ACTIVE`;
      return;
     }
    }
@@ -2207,7 +2189,6 @@
    }
 
    interaction = null;
-   updateDefaultStatusBar();
   }
 
   canvas.addEventListener('pointerup', finishInteraction);
@@ -2218,7 +2199,6 @@
    unlockLab(false);
    labConfig.inspectMode = !labConfig.inspectMode;
    if (labConfig.inspectMode && !trackedBody && planets.length > 0) {
-    // Automatically lock onto the most massive planet as an immediate starting target
     trackedBody = planets.reduce((best, cur) => (cur.mass > best.mass ? cur : best), planets[0]);
    }
    syncInspectorDeckUI();
@@ -2242,7 +2222,6 @@
    p.vx *= factor;
    p.vy *= factor;
 
-   // Spawn visual thruster exhaust puffs opposite to burn direction
    const dir = factor > 1 ? -1 : 1;
    for (let i = 0; i < 12; i++) {
     const a = Math.atan2(uy * dir, ux * dir) + (Math.random() - 0.5) * 0.6;
@@ -2260,7 +2239,6 @@
    }
    spawnCallout(p.x, p.y - p.r - 10, label, color);
    sfx.playThruster();
-   updateDefaultStatusBar();
   }
 
   document.getElementById('btnPrograde').addEventListener('click', e => {
@@ -2342,12 +2320,39 @@
    e.target.textContent = sfx.enabled ? 'AUDIO: ON' : 'AUDIO: OFF';
   });
 
-  // Time-Warp Selector
+  // Dynamic PAUSE <-> ▶ PLAY & Time-Warp Selector
+  const pausePlayBtn = document.getElementById('pausePlayBtn');
+
+  function syncTimeWarpButtons() {
+   const isPaused = labConfig.timeScale === 0;
+   document.querySelectorAll('#timeWarpGroup .pill-btn').forEach(b => {
+    const spd = Number(b.dataset.speed);
+    if (spd === 0) {
+     b.textContent = isPaused ? '▶ PLAY' : 'PAUSE';
+     b.classList.toggle('paused-play', isPaused);
+     b.classList.remove('active');
+    } else {
+     b.classList.toggle('active', !isPaused && labConfig.timeScale === spd);
+    }
+   });
+  }
+
   document.querySelectorAll('#timeWarpGroup .pill-btn').forEach(btn => {
    btn.addEventListener('click', () => {
-    document.querySelectorAll('#timeWarpGroup .pill-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    labConfig.timeScale = Number(btn.dataset.speed);
+    const requestedSpeed = Number(btn.dataset.speed);
+    if (requestedSpeed === 0) {
+     if (labConfig.timeScale === 0) {
+      // Resume at previous active speed when tapping ▶ PLAY
+      labConfig.timeScale = labConfig.lastActiveSpeed || 1;
+     } else {
+      labConfig.lastActiveSpeed = labConfig.timeScale;
+      labConfig.timeScale = 0;
+     }
+    } else {
+     labConfig.timeScale = requestedSpeed;
+     labConfig.lastActiveSpeed = requestedSpeed;
+    }
+    syncTimeWarpButtons();
     unlockLab(false);
    });
   });
@@ -2361,50 +2366,17 @@
    });
   });
 
-  // Dynamic "ALL MODES ON" <-> "DEFAULT MODES" Button
-  const allTogglesBtn = document.getElementById('allTogglesBtn');
-
-  function areAllTogglesOn() {
-   return labConfig.deepPredict && labConfig.slowMoAim && labConfig.longTrails;
-  }
-
-  function syncAllTogglesButton() {
-   const allOn = areAllTogglesOn();
-   allTogglesBtn.textContent = allOn ? 'DEFAULT MODES' : 'ALL MODES ON';
-   allTogglesBtn.classList.toggle('all-on', allOn);
-  }
-
   document.getElementById('toggleDeepPredict').addEventListener('change', e => {
    labConfig.deepPredict = e.target.checked;
-   syncAllTogglesButton();
   });
   document.getElementById('toggleSlowMo').addEventListener('change', e => {
    labConfig.slowMoAim = e.target.checked;
-   syncAllTogglesButton();
   });
   document.getElementById('toggleLongTrails').addEventListener('change', e => {
    labConfig.longTrails = e.target.checked;
    if (!labConfig.longTrails) {
     planets.forEach(p => { if (p.trail.length > 68) p.trail.splice(0, p.trail.length - 68); });
    }
-   syncAllTogglesButton();
-  });
-
-  allTogglesBtn.addEventListener('click', () => {
-   if (areAllTogglesOn()) {
-    labConfig.deepPredict = true;
-    labConfig.slowMoAim = true;
-    labConfig.longTrails = false;
-   } else {
-    labConfig.deepPredict = true;
-    labConfig.slowMoAim = true;
-    labConfig.longTrails = true;
-   }
-   document.getElementById('toggleDeepPredict').checked = labConfig.deepPredict;
-   document.getElementById('toggleSlowMo').checked = labConfig.slowMoAim;
-   document.getElementById('toggleLongTrails').checked = labConfig.longTrails;
-   syncAllTogglesButton();
-   unlockLab(false);
   });
 
   // 3 Gravitational Regimes
@@ -2473,7 +2445,7 @@
    ctx.restore();
   }
 
-  syncAllTogglesButton();
+  syncTimeWarpButtons();
   resizeCanvas();
   requestAnimationFrame(animate);
  </script>
